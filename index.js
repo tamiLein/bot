@@ -16,7 +16,7 @@ server.post('/get-cocktail-by-ingredient', function (req, res) {
     http.get(reqUrl, (responseFromAPI) => {
 
         responseFromAPI.on('data', function (chunk) {
-            let cockatil = JSON.parse(chunk)['data'];
+            let cocktail = JSON.parse(chunk)['data'];
             let dataToSend = ingredientToSearch === 'Vodka' ? 'I don\'t have the required info on that. Here\'s some info on \'Vodka\' instead.\n' : '';
             dataToSend += cocktail;
 
@@ -36,7 +36,116 @@ server.post('/get-cocktail-by-ingredient', function (req, res) {
     });
 });
 
+server.get('/get-cocktail-by-ingredient', function (req, res) {
+    console.log("test");
+    let ingredientToSearch = req.body.result && req.body.result.parameters && req.body.result.parameters.Ingredient ? req.body.result.parameters.Ingredient : 'Vodka';
+    console.log("ingredient; ", ingredientToSearch);
 
+    let reqUrl = encodeURI('http://www.thecocktaildb.com/api/json/v1/1/filter.php?i=' + ingredientToSearch);
+
+    console.log("url", reqUrl);
+    http.get(reqUrl, (responseFromAPI) => {
+
+        responseFromAPI.on('data', function (chunk) {
+            console.log("data");
+            let cocktail = JSON.parse(chunk)['drinks'][0];
+            console.log("cocktail", cocktail);
+            let dataToSend = ingredientToSearch === 'Vodka' ? 'I don\'t have the required info on that. Here\'s some info on \'Vodka\' instead.\n' : '';
+
+            console.log(dataToSend);
+
+            dataToSend += cocktail;
+
+            return res.json({
+                speech: dataToSend,
+                displayText: dataToSend,
+                source: 'get-cocktail-by-ingredient'
+            });
+
+        });
+    }, (error) => {
+        return res.json({
+            speech: 'Something went wrong!',
+            displayText: 'Something went wrong!',
+            source: 'get-cocktail-by-ingredient'
+        });
+    });
+});
+
+
+server.get('/get-cocktail-by-name', function (req, res) {
+    console.log("test");
+    let nameToSearch = req.body.result && req.body.result.parameters && req.body.result.parameters.Name ? req.body.result.parameters.Name : 'margarita';
+    console.log("name; ", nameToSearch);
+
+    let reqUrl = encodeURI('http://www.thecocktaildb.com/api/json/v1/1/search.php?s=' + nameToSearch);
+
+    console.log("url", reqUrl);
+    http.get(reqUrl, (responseFromAPI) => {
+
+        responseFromAPI.on('data', function (chunk) {
+            console.log("data");
+            let cocktail = JSON.parse(chunk)['drinks'][0];
+            console.log("cocktail", cocktail);
+            let dataToSend = nameToSearch === 'margarita' ? 'I don\'t have the required info on that. Here\'s some info on \'margarita\' instead.\n' : '';
+
+            console.log(dataToSend);
+
+            dataToSend = cocktail['strDrink'];
+
+            return res.json({
+                speech: dataToSend,
+                displayText: dataToSend,
+                source: 'get-cocktail-by-name'
+            });
+
+        });
+    }, (error) => {
+        return res.json({
+            speech: 'Something went wrong!',
+            displayText: 'Something went wrong!',
+            source: 'get-cocktail-by-name'
+        });
+    });
+});
+
+
+server.post('/get-cocktail-random', function (req, res) {
+    console.log("test");
+
+    //let reqUrl = encodeURI('http://www.thecocktaildb.com/api/json/v1/1/random.php');
+    let reqUrl = encodeURI('http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=17122');
+
+    console.log("url", reqUrl);
+    http.get(reqUrl, (responseFromAPI) => {
+
+        responseFromAPI.on('data', function (chunk) {
+            console.log("data");
+            let cocktail = JSON.parse(chunk)['drinks'][0];
+            console.log("testiiii");
+            console.log("cocktail", cocktail);
+            let dataToSend = '';
+
+            console.log(dataToSend);
+
+            dataToSend = cocktail['strDrink'];
+            console.log('data sent', dataToSend);
+
+            return res.json({
+                speech: dataToSend,
+                displayText: dataToSend,
+                source: 'get-cocktail-random'
+            });
+
+        });
+    }, (error) => {
+        return res.json({
+            speech: 'Something went wrong!',
+            displayText: 'Something went wrong!',
+            source: 'get-cocktail-random'
+        });
+    });
+});
 
 
 server.post('/get-movie-details', function (req, res) {
@@ -67,6 +176,8 @@ server.post('/get-movie-details', function (req, res) {
 });
 
 
-server.listen((process.env.PORT || 8000), function () {
+
+
+server.listen((process.env.PORT || 8080), function () {
     console.log("Server is up and running...");
 });
