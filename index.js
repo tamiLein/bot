@@ -14,47 +14,15 @@ server.post('/get-cocktail-by-ingredient', function (req, res) {
     let ingredientToSearch = req.body.result && req.body.result.parameters && req.body.result.parameters.Ingredient ? req.body.result.parameters.Ingredient : 'Vodka';
     let reqUrl = encodeURI('http://www.thecocktaildb.com/api/json/v1/1/filter.php?i=' + ingredientToSearch);
     http.get(reqUrl, (responseFromAPI) => {
-
+        let body = '';
         responseFromAPI.on('data', function (chunk) {
-            let cocktail = JSON.parse(chunk)['data'];
-            let dataToSend = ingredientToSearch === 'Vodka' ? 'I don\'t have the required info on that. Here\'s some info on \'Vodka\' instead.\n' : '';
-            dataToSend += cocktail;
-
-            return res.json({
-                speech: dataToSend,
-                displayText: dataToSend,
-                source: 'get-cocktail-by-ingredient'
-            });
-
+            body += chunk;
         });
-    }, (error) => {
-        return res.json({
-            speech: 'Something went wrong!',
-            displayText: 'Something went wrong!',
-            source: 'get-cocktail-by-ingredient'
-        });
-    });
-});
 
-server.get('/get-cocktail-by-ingredient', function (req, res) {
-    console.log("test");
-    let ingredientToSearch = req.body.result && req.body.result.parameters && req.body.result.parameters.Ingredient ? req.body.result.parameters.Ingredient : 'Vodka';
-    console.log("ingredient; ", ingredientToSearch);
-
-    let reqUrl = encodeURI('http://www.thecocktaildb.com/api/json/v1/1/filter.php?i=' + ingredientToSearch);
-
-    console.log("url", reqUrl);
-    http.get(reqUrl, (responseFromAPI) => {
-
-        responseFromAPI.on('data', function (chunk) {
-            console.log("data");
-            let cocktail = JSON.parse(chunk)['drinks'][0];
-            console.log("cocktail", cocktail);
+        responseFromAPI.on('end', function () {
+            let cocktail = JSON.parse(body)['drinks'][0];
             let dataToSend = ingredientToSearch === 'Vodka' ? 'I don\'t have the required info on that. Here\'s some info on \'Vodka\' instead.\n' : '';
-
-            console.log(dataToSend);
-
-            dataToSend += cocktail;
+            dataToSend += cocktail['strDrinks'];
 
             return res.json({
                 speech: dataToSend,
@@ -73,7 +41,7 @@ server.get('/get-cocktail-by-ingredient', function (req, res) {
 });
 
 
-server.get('/get-cocktail-by-name', function (req, res) {
+server.post('/get-cocktail-by-name', function (req, res) {
     console.log("test");
     let nameToSearch = req.body.result && req.body.result.parameters && req.body.result.parameters.Name ? req.body.result.parameters.Name : 'margarita';
     console.log("name; ", nameToSearch);
@@ -91,7 +59,7 @@ server.get('/get-cocktail-by-name', function (req, res) {
 
             console.log(dataToSend);
 
-            dataToSend = cocktail['strDrink'];
+            dataToSend += cocktail['strDrink'];
 
             return res.json({
                 speech: dataToSend,
