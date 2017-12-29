@@ -21,8 +21,8 @@ server.post('/get-cocktail-by-ingredient', function (req, res) {
 
         responseFromAPI.on('end', function () {
             let cocktail = JSON.parse(body)['drinks'][0];
-            let dataToSend = ingredientToSearch === 'Vodka' ? 'I don\'t have the required info on that. Here\'s some info on \'Vodka\' instead.\n' : '';
-            dataToSend += cocktail['strDrinks'];
+            let dataToSend = ingredientToSearch === 'Vodka' ? 'I don\'t have the required info on that. Here\'s some info on \'Vodka\' instead.\n ' : '';
+            dataToSend += cocktail['strDrink'];
 
             return res.json({
                 speech: dataToSend,
